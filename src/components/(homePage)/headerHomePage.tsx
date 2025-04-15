@@ -57,7 +57,7 @@ export default function HeaderHomePage() {
             }}>
                
                     <h2>
-                        {user?.email}
+                        {user?.name}
                         
                     </h2>
                     <h1 
