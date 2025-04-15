@@ -1,6 +1,5 @@
-import { Sign } from "crypto";
-import LogIn from "../components/button1";
-import SignUp from "../components/button2";
+import LogIn from "../../components/button1";
+import SignUp from "../../components/button2";
 export default function RootLayout({
     children,
 }: {

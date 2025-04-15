@@ -1,5 +1,4 @@
-import SignUpWindow from "@/app/components/signUpWindow";
-
+import SignUpWindow from "@/components/signUpWindow";
 export default function SignUp() {
     return (
         <SignUpWindow/>

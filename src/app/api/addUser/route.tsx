@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { setCookie } from 'nookies';
 
 export async function POST(request: Request) {
     const prisma = new PrismaClient();

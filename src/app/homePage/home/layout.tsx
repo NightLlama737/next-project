@@ -1,6 +1,4 @@
-import { parseCookies } from "nookies";
-import HeaderHomePage from "../../components/(homePage)/headerHomePage";
-import SideBar from "../../components/(homePage)/sideBar";
+
 export default function RootLayout({
     children,
 }: {
