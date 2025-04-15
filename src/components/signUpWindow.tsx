@@ -7,11 +7,9 @@ export default function SignUpWindow() {
     const [name, setName] = useState("");
     const [groupId, setGroupId] = useState("");
     const [passwordAggain, setPasswordAgain] = useState("");
-    const [workerId, setWorkerId] = useState(0);
     const router = useRouter();
     const addUser = async () => {
         const randomWorkerId = Math.floor(Math.random() * 100) + 1;
-        setWorkerId(randomWorkerId);
 
         try {
             const response = await fetch("/api/addUser", {
@@ -35,7 +33,7 @@ export default function SignUpWindow() {
 
             const data = await response.json();
             console.log("User added:", data);
-            router.push("/"); // Redirect to home page after successful sign-up
+            router.push("/"); 
         } catch (error: any) {
             console.error("Error adding user:", error);
             alert("Error adding user: " + error.message);}
