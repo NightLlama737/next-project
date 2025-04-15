@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
-
+import { prisma } from "../../../../prisma";
 export async function GET() {
-    const prisma = new PrismaClient();
+    
     try {
         const users = await prisma.group.findUnique({
             where: { id: 1 },

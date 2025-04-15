@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../../../prisma";
 
 export async function POST(request: Request) {
-    const prisma = new PrismaClient();
     
     try {
         // Log request headers for debugging
