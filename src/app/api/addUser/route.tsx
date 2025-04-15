@@ -21,7 +21,7 @@ export async function POST(request: Request) {
             });
         }
         
-        if (!body.name || !body.email || !body.groupId || !body.password || !body.workerId) {
+        if (!body.name || !body.email || !body.groupName || !body.password || !body.workerId) {
             return new Response(JSON.stringify({ 
                 error: "Missing required fields",
                 received: body
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
                 name: body.name,
                 email: body.email,
                 password: body.password,
-                groupId: parseInt(body.groupId),
+                groupName: body.groupName,
                 workerId: parseInt(body.workerId),
             },
         });
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
             id: user.id,
             name: user.name,
             email: user.email,
-            groupId: user.groupId,
+            groupName: user.groupName,
             workerId: user.workerId,
         });
 

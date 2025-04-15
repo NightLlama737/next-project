@@ -21,18 +21,9 @@ export default function Users() {
             const cookies = parseCookies();
             
             if (cookies.user) {
-                try {
-                    const userData = JSON.parse(cookies.user);
-                    console.log('User data found:', userData); // Debug log
-                    
-                    if (userData.email) {
-                        router.replace('/homePage');
-                        return;
-                    }
-                } catch (e) {
-                    console.error('Error parsing user cookie:', e);
-                }
+                router.replace('/homePage');
             }
+            else if (!cookies.user) {
 
             // Only fetch users if no valid cookie exists
             try {
@@ -48,6 +39,7 @@ export default function Users() {
             } finally {
                 setLoading(false);
             }
+        }
         };
 
         checkAuth();

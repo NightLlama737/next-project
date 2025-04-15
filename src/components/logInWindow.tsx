@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 export default function LogInWindow() {
 
     const [email, setEmail] = useState("");
-    const [groupId, setGroupId] = useState("");
+    const [groupName, setGroupName] = useState("");
     const [password, setPassword] = useState("");
     const router = useRouter();
 
@@ -22,7 +22,7 @@ export default function LogInWindow() {
                 },
                 body: JSON.stringify({
                     email,
-                    groupId,
+                    groupName,
                     password,
                 }),
             });
@@ -74,7 +74,7 @@ export default function LogInWindow() {
     
                     borderRadius: "5px",
     
-                }} onChange={(e) => setGroupId(e.target.value)}></input>
+                }} onChange={(e) => setGroupName(e.target.value)}></input>
                 <input type="password" placeholder="Your password" style={{
                      backgroundColor: "lightgray",
                      marginBottom: "10px",

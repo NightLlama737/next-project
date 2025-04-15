@@ -5,7 +5,7 @@ export default function SignUpWindow() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
-    const [groupId, setGroupId] = useState("");
+    const [groupName, setGroupName] = useState("");
     const [passwordAggain, setPasswordAgain] = useState("");
     const router = useRouter();
     const addUser = async () => {
@@ -20,9 +20,9 @@ export default function SignUpWindow() {
                 body: JSON.stringify({
                     name,
                     email,
-                    groupId,
+                    groupName,
                     password,
-                    workerId: randomWorkerId + groupId,
+                    workerId: randomWorkerId + groupName,
                 }),
             });
 
@@ -33,7 +33,7 @@ export default function SignUpWindow() {
 
             const data = await response.json();
             console.log("User added:", data);
-            router.push("/"); 
+            router.push("/homePage"); 
         } catch (error) {
             console.error("Error:", error);
             const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -46,7 +46,7 @@ export default function SignUpWindow() {
             alert("Passwords do not match");
             return;
         }
-        if (name === "" || email === "" || groupId === "" || password === "" || passwordAggain === "") {
+        if (name === "" || email === "" || groupName === "" || password === "" || passwordAggain === "") {
             alert("Please fill in all fields");
             return;
         }
@@ -91,7 +91,7 @@ export default function SignUpWindow() {
                     padding: "10px",
                     border: "none",
                     borderRadius: "5px",
-                }} onChange={(e)=> setGroupId(e.target.value)}></input>
+                }} onChange={(e)=> setGroupName(e.target.value)}></input>
 
                 <input type="password" placeholder="Your password" style={{
                     backgroundColor: "lightgray",

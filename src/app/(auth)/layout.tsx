@@ -1,5 +1,5 @@
-import LogIn from "../../components/button1";
-import SignUp from "../../components/button2";
+import LogIn from "../../components/signUpButton";
+import SignUp from "../../components/logInButton";
 export default function RootLayout({
     children,
 }: {

@@ -3,7 +3,7 @@ export async function GET() {
     
     try {
         const users = await prisma.group.findUnique({
-            where: { id: 1 },
+            where: { name: "mc" },
                 include: {
                     users: true
             },

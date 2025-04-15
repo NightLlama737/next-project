@@ -14,16 +14,16 @@ model User {
   password         String?
   workerId         Int        @unique
   createdAt        DateTime   @default(now())
-  groupId          Int?
+  groupName          String?
   receivedMessages Messages[] @relation("ReceivedMessages")
   sentMessages     Messages[] @relation("SentMessages")
   Posts            Posts[]
-  Group            Group?     @relation(fields: [groupId], references: [id])
-}
+  Group            Group? @relation(fields: [groupName], references: [name])
+  }
 
 model Group {
   id        Int        @id @default(autoincrement())
-  name      String?
+  name      String   @unique
   createdAt DateTime   @default(now())
   users     User[]
 }

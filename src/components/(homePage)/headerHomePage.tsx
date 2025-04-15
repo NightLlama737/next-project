@@ -19,34 +19,42 @@ export default function HeaderHomePage() {
 
     useEffect(() => {
         const cookies = parseCookies();
-        if (cookies.user) {
-            try {
-                const parsedUser = JSON.parse(cookies.user) as User;
+        console.log('All cookies:', cookies.user); // Debug all cookies
+
+        
+            if (cookies.user) {
+                const parsedUser = JSON.parse(cookies.user);
+                console.log('Parsed user:', parsedUser); // Debug parsed user
                 setUser(parsedUser);
-            } catch (err) {
-                console.error("Error parsing user cookie:", err);
+            } else {
+                console.log('No user cookie found'); // Debug missing cookie
             }
-        }
-    }, []);
+       
+    }, [router]);
 
     const logOut = () => {
-        destroyCookie(null, "user");
-        router.push("/");
+        try {
+            destroyCookie(null, "user", {
+                path: '/', // Important: must match the path used when setting the cookie
+            });
+            setUser(null);
+            router.push("/");
+        } catch (error) {
+            console.error('Error during logout:', error);
+        }
     };
 
     return ( 
         <header
-            style={
-                {
-                    display: "flex",
-                    boxShadow: "5px 5px 5px rgba(0, 0, 0, 0.1)",
-                    height: "50px",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "10px",
-                    backgroundColor: "#f0f0f0",
-                }
-            }>
+            style={{
+                display: "flex",
+                boxShadow: "5px 5px 5px rgba(0, 0, 0, 0.1)",
+                height: "50px",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "10px",
+                backgroundColor: "#f0f0f0",
+            }}>
                
                     <h2>
                         {user?.email}

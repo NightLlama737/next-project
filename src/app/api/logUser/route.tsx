@@ -4,7 +4,7 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
         
-        if (!body.email || !body.groupId || !body.password) {
+        if (!body.email || !body.groupName || !body.password) {
             return new Response(JSON.stringify({ error: "Missing required fields" }), {
                 status: 400,
                 headers: { "Content-Type": "application/json" },
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
         const user = await prisma.user.findFirst({
             where: {
                 email: body.email,
-                groupId: parseInt(body.groupId),
+                groupName: body.groupName,
                 password: body.password
             }
         });
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
             id: user.id,
             name: user.name,
             email: user.email,
-            groupId: user.groupId,
+            groupName: user.groupName,
             workerId: user.workerId,
         });
 
