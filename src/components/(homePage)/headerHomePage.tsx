@@ -4,26 +4,36 @@ import { destroyCookie } from 'nookies';
 import { useRouter } from "next/navigation";
 import { parseCookies } from "nookies";
 import { useEffect, useState } from "react";
- 
+
+interface User {
+    id: number;
+    email: string;
+    name: string;
+    groupId: number;
+    workerId: number;
+}
+
 export default function HeaderHomePage() {
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User | null>(null);
     const router = useRouter();
 
     useEffect(() => {
         const cookies = parseCookies();
         if (cookies.user) {
             try {
-                const paredUser = JSON.parse(cookies.user);
-                setUser(paredUser);
+                const parsedUser = JSON.parse(cookies.user) as User;
+                setUser(parsedUser);
             } catch (err) {
                 console.error("Error parsing user cookie:", err);
             }
-    }}, []);
+        }
+    }, []);
 
     const logOut = () => {
-        router.push("/");
         destroyCookie(null, "user");
-    }
+        router.push("/");
+    };
+
     return ( 
         <header
             style={
