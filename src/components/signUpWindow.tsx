@@ -34,7 +34,7 @@ export default function SignUpWindow() {
             const data = await response.json();
             console.log("User added:", data);
             router.push("/"); 
-        } catch (error: any) {
+        } catch (error) {
             console.error("Error:", error);
             const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
             alert("Error adding user: " + errorMessage);}
