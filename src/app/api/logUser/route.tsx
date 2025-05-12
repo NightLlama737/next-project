@@ -1,8 +1,15 @@
 import { prisma } from "../../../../prisma";
+import bcrypt from 'bcrypt';
+
+interface LoginRequest {
+    email: string;
+    groupName: string;
+    password: string;
+}
 
 export async function POST(request: Request) {
     try {
-        const body = await request.json();
+        const body = await request.json() as LoginRequest;
         
         if (!body.email || !body.groupName || !body.password) {
             return new Response(JSON.stringify({ error: "Missing required fields" }), {
@@ -11,15 +18,25 @@ export async function POST(request: Request) {
             });
         }
 
+        // First find the user by email and groupName
         const user = await prisma.user.findFirst({
             where: {
                 email: body.email,
                 groupName: body.groupName,
-                password: body.password
             }
         });
         
-        if (!user) {
+        if (!user || !user.password) {
+            return new Response(JSON.stringify({ error: "Invalid credentials" }), {
+                status: 401,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+
+        // Compare the provided password with the hashed password
+        const passwordMatch = await bcrypt.compare(body.password, user.password);
+
+        if (!passwordMatch) {
             return new Response(JSON.stringify({ error: "Invalid credentials" }), {
                 status: 401,
                 headers: { "Content-Type": "application/json" },
@@ -27,7 +44,13 @@ export async function POST(request: Request) {
         }
 
         // Create the response object first
-        const response = new Response(JSON.stringify(user), {
+        const response = new Response(JSON.stringify({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            groupName: user.groupName,
+            workerId: user.workerId,
+        }), {
             status: 200,
             headers: { "Content-Type": "application/json" },
         });

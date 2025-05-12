@@ -1,4 +1,7 @@
 import { prisma } from "../../../../prisma";
+import bcrypt from 'bcrypt';
+
+const SALT_ROUNDS = 10;
 
 export async function POST(request: Request) {
     
@@ -31,11 +34,14 @@ export async function POST(request: Request) {
             });
         }
 
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(body.password, SALT_ROUNDS);
+
         const user = await prisma.user.create({
             data: {
                 name: body.name,
                 email: body.email,
-                password: body.password,
+                password: hashedPassword, // Store hashed password
                 groupName: body.groupName,
                 workerId: parseInt(body.workerId),
             },

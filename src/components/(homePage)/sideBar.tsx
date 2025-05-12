@@ -1,13 +1,24 @@
 "use client"
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import Users from "@/components/(messages)/users";
 
 export default function SideBar() {
     const router = useRouter();
-
+    const [isVisible, setIsVisible] = useState(false);
     const handleNavigation = (path: string) => {
         router.push(path);
     };
 
+    const handleIsVisible = () => {
+        handleNavigation('/homePage/messages');
+        if (isVisible) {
+            setIsVisible(false);
+        }
+        else {
+            setIsVisible(true);
+        }
+    }
     return (
         <div style={{
             display: "flex",
@@ -15,7 +26,7 @@ export default function SideBar() {
             justifyContent: "space-around",
             alignItems: "center",
             boxShadow: "5px 5px 5px rgba(0, 0, 0, 0.1)",
-            height: "25vh",
+            maxHeight: "25vh",
             width: "200px",
             backgroundColor: "#f0f0f0",
             borderRadius: "10px",
@@ -50,7 +61,7 @@ export default function SideBar() {
                 fontSize: "20px",
             }}>
                 <button 
-                    onClick={() => handleNavigation('/homePage/messages')}
+                    onClick={() => handleIsVisible()}
                     style={{
                         padding: "10px",
                         width: "100px",
@@ -103,6 +114,24 @@ export default function SideBar() {
                     Settings
                 </button>
             </li>
+            <div style={{
+                
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-around",
+            alignItems: "center",
+            boxShadow: "5px 5px 5px rgba(0, 0, 0, 0.1)",
+            height: "25vh",
+            width: "200px",
+            backgroundColor: "#f0f0f0",
+            borderRadius: "10px",
+            left: "0",
+            marginLeft: "1%",
+            marginTop: "100px",
+        }}><div style = {{
+            overflowY: "scroll",
+        }}>{isVisible ? <Users /> : null}</div></div>
+            
         </div>
     )
 }
