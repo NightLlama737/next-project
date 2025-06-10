@@ -2,10 +2,12 @@ import Post from "../../../../components/(homePage)/post";
 import { Metadata } from 'next';
 
 interface PageProps {
-    params: Promise<{
+    params: {
         posts: string;
-    }>;
-    searchParams?: { [key: string]: string | string[] | undefined };
+    };
+    searchParams?: {
+        [key: string]: string | string[] | undefined;
+    };
 }
 
 export const metadata: Metadata = {
@@ -14,9 +16,8 @@ export const metadata: Metadata = {
 };
 
 export default async function Home({ params }: PageProps) {
-    const resolvedParams = await params;
-    const { posts } = resolvedParams;
-    
+    const { posts } = params;
+
     return (
         <main>
             <Post post={posts} />
