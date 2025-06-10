@@ -5,7 +5,7 @@ import { parseCookies } from 'nookies';
 
 
 
-export default function checkIfLogged() {
+export default function CheckIfLogged() {
     const router = useRouter();
 
     useEffect(() => {
