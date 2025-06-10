@@ -1,6 +1,6 @@
 import { prisma } from "../../../../prisma";
 
-export async function GET(request: Request) {
+export async function GET() {
     try {
         const users = await prisma.user.findMany();
         if (!users || users.length === 0) {

@@ -1,15 +1,11 @@
 "use client"
-import { useEffect, useState } from "react";
+import { useEffect} from "react";
 import { useRouter } from "next/navigation";
 import { parseCookies } from 'nookies';
 
-interface User {
-    id: number;
-    name: string;
-    email: string;
-}
 
-export default function Users() {
+
+export default function checkIfLogged() {
     const router = useRouter();
 
     useEffect(() => {
@@ -17,7 +13,6 @@ export default function Users() {
             const cookies = parseCookies();
             
             if (cookies.user) {
-                const userData = JSON.parse(cookies.user);
                 router.replace(`/homePage/home`);
             }
         };

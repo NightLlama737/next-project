@@ -1,4 +1,4 @@
-import Users from "./users";
+import CheckIfLogged from "./checkIfLogged";
 
 export default async function Home() {
     // Get cookie store instance - await the Promise
@@ -6,6 +6,6 @@ export default async function Home() {
 
     // If no valid user cookie, render the page
     return (
-        <Users/>
+        <CheckIfLogged />
     );
 }

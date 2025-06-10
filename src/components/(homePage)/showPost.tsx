@@ -3,14 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-interface Post {
-    id: number;
-    title: string;
-    content: string;
-    createdAt: string;
-    authorId: number;
-    mediaUrl?: string;
-}
 
 export default function ShowPost() {
     const router = useRouter();
