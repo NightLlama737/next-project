@@ -1,7 +1,7 @@
 "use client"
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import Users from "@/components/(messages)/users";
+import Users from "../(messages)/users";
 import AddButton from "./addButton";
 
 export default function SideBar() {

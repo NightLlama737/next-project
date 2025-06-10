@@ -1,4 +1,4 @@
-import Messages from "@/components/(messages)/messages";
+import Messages from "../../../../components/(messages)/messages";
 import { cookies } from 'next/headers';
 
 interface PageProps {

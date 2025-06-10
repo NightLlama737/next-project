@@ -1,4 +1,4 @@
-import Post from "@/components/(homePage)/post";
+import Post from "../../../../components/(homePage)/post";
 import { Metadata } from 'next';
 
 interface PageProps {
