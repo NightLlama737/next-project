@@ -1,5 +1,4 @@
-
-import Users from './users';  // Adjust path as needed
+import Users from "./users";
 
 export default async function Home() {
     // Get cookie store instance - await the Promise
@@ -7,8 +6,6 @@ export default async function Home() {
 
     // If no valid user cookie, render the page
     return (
-        <div>
-            <Users />
-        </div>
+        <Users/>
     );
 }

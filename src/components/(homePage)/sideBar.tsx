@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Users from "@/components/(messages)/users";
+import AddButton from "./addButton";
 
 export default function SideBar() {
     const router = useRouter();
@@ -26,8 +27,8 @@ export default function SideBar() {
             justifyContent: "space-around",
             alignItems: "center",
             boxShadow: "5px 5px 5px rgba(0, 0, 0, 0.1)",
-            maxHeight: "25vh",
-            width: "200px",
+            maxHeight: "30vh",
+            width: "px",
             backgroundColor: "#f0f0f0",
             borderRadius: "10px",
             left: "0",
@@ -53,6 +54,14 @@ export default function SideBar() {
                 >
                     Home
                 </button>
+            </li>
+            <li style={{
+                listStyleType: "none",
+                padding: "10px",
+                marginLeft: "10px",
+                fontSize: "20px",
+            }}>
+                <AddButton />
             </li>
             <li style={{
                 listStyleType: "none",
