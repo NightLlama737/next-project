@@ -5,9 +5,6 @@ interface PageProps {
     params: Promise<{
         posts: string;
     }>;
-    searchParams?: {
-        [key: string]: string | string[] | undefined;
-    };
 }
 
 export const metadata: Metadata = {
