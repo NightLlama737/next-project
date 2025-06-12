@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { pusher } from '../../../lib/pusher';
+import { pusherServer } from '../../../lib/pusher';
 import { prisma } from '../../../../prisma';
 
 export async function GET(request: Request) {
@@ -7,6 +7,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const senderId = searchParams.get('senderId');
     const receiverId = searchParams.get('receiverId');
+
+    console.log('Fetching messages for:', { senderId, receiverId });
 
     if (!senderId || !receiverId) {
       return NextResponse.json(
@@ -27,9 +29,10 @@ export async function GET(request: Request) {
       }
     });
 
+    console.log('Found messages:', messages.length);
     return NextResponse.json(messages);
   } catch (error) {
-    console.error('Error fetching messages:', error);
+    console.error('Error details:', error);
     return NextResponse.json(
       { error: 'Failed to fetch messages' },
       { status: 500 }
@@ -52,7 +55,7 @@ export async function POST(request: Request) {
 
     // Trigger Pusher event with the channel name based on sorted IDs
     const channelName = `chat-${[senderId, receiverId].sort().join('-')}`;
-    await pusher.trigger(channelName, 'new-message', message);
+    await pusherServer.trigger(channelName, 'new-message', message);
 
     return NextResponse.json(message);
   } catch (error) {

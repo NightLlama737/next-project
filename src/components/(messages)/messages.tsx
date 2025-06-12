@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { pusherClient } from '../../lib/pusher';
+import styles from './messages.module.css';
 
 interface Message {
   id: number;
@@ -24,7 +25,12 @@ export default function Messages({ SenderUserId, ReceiverUserId }: MessagesProps
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: "smooth",
+        block: "end"
+      });
+    }
   };
 
   useEffect(() => {
@@ -44,21 +50,34 @@ export default function Messages({ SenderUserId, ReceiverUserId }: MessagesProps
     };
   }, [SenderUserId.Id, ReceiverUserId.Id]);
 
+  // Add new useEffect for handling scrolling when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   const fetchMessages = async () => {
     try {
+      console.log('Fetching messages for:', {
+        sender: SenderUserId.Id,
+        receiver: ReceiverUserId.Id
+      });
+
+      // Update the fetch URL to match your API route
       const response = await fetch(
-        `/api/messages?senderId=${SenderUserId.Id}&receiverId=${ReceiverUserId.Id}`
+        `/api/getMessages?senderId=${SenderUserId.Id}&receiverId=${ReceiverUserId.Id}`
       );
       
       if (!response.ok) {
-        throw new Error('Failed to fetch messages');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch messages');
       }
 
       const data = await response.json();
+      console.log('Received messages:', data);
       setMessages(data);
-      scrollToBottom();
+      // Remove scrollToBottom from here since it will be triggered by the useEffect
     } catch (error) {
-      console.error('Error fetching messages:', error);
+      console.error('Fetch error:', error);
       setError(error instanceof Error ? error : new Error('Failed to fetch messages'));
     }
   };
@@ -69,7 +88,8 @@ export default function Messages({ SenderUserId, ReceiverUserId }: MessagesProps
 
     setIsLoading(true);
     try {
-      const response = await fetch('/api/messages', {
+      // Update the fetch URL to match your API route
+      const response = await fetch('/api/getMessages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +102,8 @@ export default function Messages({ SenderUserId, ReceiverUserId }: MessagesProps
       });
 
       if (!response.ok) {
-        throw new Error('Failed to send message');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send message');
       }
 
       setMessageText('');
@@ -95,53 +116,50 @@ export default function Messages({ SenderUserId, ReceiverUserId }: MessagesProps
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] max-w-2xl mx-auto">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className={styles.container}>
+      <div className={styles.messagesList}>
         {error && (
-          <div className="bg-red-100 text-red-700 p-3 rounded-md mb-4">
+          <div className={styles.errorMessage}>
             {error.message}
           </div>
         )}
         
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${
-              message.senderId === Number(SenderUserId.Id) ? 'justify-end' : 'justify-start'
-            }`}
-          >
+        {messages.map((message) => {
+          const isSender = message.senderId === Number(SenderUserId.Id);
+          
+          return (
             <div
-              className={`max-w-[70%] p-3 rounded-lg ${
-                message.senderId === Number(SenderUserId.Id)
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100'
+              key={message.id}
+              className={`${styles.messageWrapper} ${
+                isSender ? styles.senderMessage : styles.receiverMessage
               }`}
             >
-              <p>{message.content}</p>
-              <span className="text-xs opacity-75">
-                {new Date(message.createdAt).toLocaleTimeString()}
-              </span>
+              <div className={styles.messageBubble}>
+                <p className={styles.messageContent}>{message.content}</p>
+                <span className={styles.messageTime}>
+                  {new Date(message.createdAt).toLocaleTimeString()}
+                </span>
+              </div>
             </div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
+          );
+        })}
+        <div ref={messagesEndRef} style={{ height: "0px" }} />
       </div>
 
-      <form onSubmit={handleSendMessage} className="p-4 border-t bg-white">
-        <div className="flex gap-2">
+      <form onSubmit={handleSendMessage} className={styles.messageForm}>
+        <div className={styles.inputWrapper}>
           <input
             type="text"
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
-            className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={styles.messageInput}
             placeholder="Type a message..."
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={isLoading || !messageText.trim()}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 
-                     disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
+            className={styles.sendButton}
           >
             {isLoading ? 'Sending...' : 'Send'}
           </button>
