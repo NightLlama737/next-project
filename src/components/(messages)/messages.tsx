@@ -1,214 +1,152 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react';
+import { pusherClient } from '../../lib/pusher';
 
-interface Id {
-    Id: string | number;
-}
-
-interface APIMessage {
-    id: number;
-    senderId: number;
-    receiverId: number;
-    content: string;
-    createdAt: string;
+interface Message {
+  id: number;
+  senderId: number;
+  receiverId: number;
+  content: string;
+  createdAt: string;
 }
 
 interface MessagesProps {
-    SenderUserId: Id;
-    ReceiverUserId: Id;
+  SenderUserId: { Id: string | number };
+  ReceiverUserId: { Id: string | number };
 }
 
 export default function Messages({ SenderUserId, ReceiverUserId }: MessagesProps) {
-    const [messages, setMessages] = useState<APIMessage[]>([]);
-    const [error, setError] = useState<Error | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [messageText, setMessageText] = useState('');
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [messageText, setMessageText] = useState('');
+  const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    const channelName = `chat-${[SenderUserId.Id, ReceiverUserId.Id].sort().join('-')}`;
+    const channel = pusherClient.subscribe(channelName);
+
+    channel.bind('new-message', (newMessage: Message) => {
+      setMessages((prev) => [...prev, newMessage]);
+      scrollToBottom();
+    });
+
+    fetchMessages();
+
+    return () => {
+      channel.unbind('new-message');
+      pusherClient.unsubscribe(channelName);
     };
+  }, [SenderUserId.Id, ReceiverUserId.Id]);
 
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
+  const fetchMessages = async () => {
+    try {
+      const response = await fetch(
+        `/api/messages?senderId=${SenderUserId.Id}&receiverId=${ReceiverUserId.Id}`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch messages');
+      }
 
-    useEffect(() => {
-        const fetchMessages = async () => {
-            try {
-                const response = await fetch("/api/getMessages");
-                if (!response.ok) {
-                    throw new Error("Failed to fetch messages");
-                }
-                const allMessages = await response.json();
-                
-                const currentUserId = typeof SenderUserId.Id === 'string' 
-                    ? parseInt(SenderUserId.Id, 10) 
-                    : SenderUserId.Id;
-                const receiverId = typeof ReceiverUserId.Id === 'string'
-                    ? parseInt(ReceiverUserId.Id, 10)
-                    : ReceiverUserId.Id;
+      const data = await response.json();
+      setMessages(data);
+      scrollToBottom();
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      setError(error instanceof Error ? error : new Error('Failed to fetch messages'));
+    }
+  };
 
-                const filteredMessages = allMessages.filter((message: APIMessage) => 
-                    (message.senderId === currentUserId && message.receiverId === receiverId) ||
-                    (message.senderId === receiverId && message.receiverId === currentUserId)
-                );
-                
-                console.log('Messages found:', filteredMessages.length);
-                setMessages(filteredMessages);
-            } catch (error) {
-                console.error("Error fetching messages:", error);
-                setError(error instanceof Error ? error : new Error("An unknown error occurred"));
-            } finally {
-                setLoading(false);
-            }
-        };
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!messageText.trim() || isLoading) return;
 
-        if (SenderUserId?.Id && ReceiverUserId?.Id) {
-            fetchMessages();
-        }
-    }, [SenderUserId, ReceiverUserId]);
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          senderId: SenderUserId.Id,
+          receiverId: ReceiverUserId.Id,
+          content: messageText.trim(),
+        }),
+      });
 
-    const handleSendMessage = async () => {
-        if (!messageText.trim()) return;
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
 
-        try {
-            const currentUserId = typeof SenderUserId.Id === 'string' 
-                ? parseInt(SenderUserId.Id, 10) 
-                : SenderUserId.Id;
-            const receiverId = typeof ReceiverUserId.Id === 'string'
-                ? parseInt(ReceiverUserId.Id, 10) 
-                : ReceiverUserId.Id;
+      setMessageText('');
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setError(error instanceof Error ? error : new Error('Failed to send message'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-            const response = await fetch("/api/addMessage", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    senderId: currentUserId,
-                    receiverId: receiverId,
-                    content: messageText,
-                }),
-            });
+  return (
+    <div className="flex flex-col h-[calc(100vh-4rem)] max-w-2xl mx-auto">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {error && (
+          <div className="bg-red-100 text-red-700 p-3 rounded-md mb-4">
+            {error.message}
+          </div>
+        )}
+        
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`flex ${
+              message.senderId === Number(SenderUserId.Id) ? 'justify-end' : 'justify-start'
+            }`}
+          >
+            <div
+              className={`max-w-[70%] p-3 rounded-lg ${
+                message.senderId === Number(SenderUserId.Id)
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100'
+              }`}
+            >
+              <p>{message.content}</p>
+              <span className="text-xs opacity-75">
+                {new Date(message.createdAt).toLocaleTimeString()}
+              </span>
+            </div>
+          </div>
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Failed to send message");
-            }
-
-            const newMessage = await response.json();
-            setMessages(prevMessages => [...prevMessages, newMessage]);
-            setMessageText('');
-        } catch (error) {
-            console.error("Error sending message:", error);
-            setError(error instanceof Error ? error : new Error("An unknown error occurred"));
-        }
-    };
-
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error.message}</div>;
-    if (!messages.length) return <>
-        <div>No messages yet</div>
-        <div style = {{
-            height: '80%',
-            margin: '10px 0',
-
-        }}></div>
-        <input
+      <form onSubmit={handleSendMessage} className="p-4 border-t bg-white">
+        <div className="flex gap-2">
+          <input
             type="text"
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
+            className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Type a message..."
-            style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid #ccc',
-                borderRadius: '5px',
-                marginTop: '10px',
-                boxSizing: 'border-box'
-            }}
-        />
-        <button
-            style={{
-                padding: '10px 20px',
-                backgroundColor: '#0070f3',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                marginTop: '10px',
-                width: '100%'
-            }}
-            onClick={handleSendMessage}
-        >
-            Send
-        </button>
-    </>;
-
-    return (
-        <>
-         <ul style={{ listStyle: 'none', padding: 0, height: '80%', overflowY: 'scroll'}}>
-            {messages.map((message) => {
-                const currentUserId = typeof SenderUserId.Id === 'string' 
-                    ? parseInt(SenderUserId.Id, 10) 
-                    : SenderUserId.Id;
-
-                const isMyMessage = message.senderId === currentUserId;
-
-                return (
-                    <li 
-                        key={`${message.id}-${message.createdAt}`}
-                        style={{
-                            margin: '10px 0',
-                            padding: '10px',
-                            backgroundColor: isMyMessage ? '#e3f2fd' : '#f5f5f5',
-                            borderRadius: '8px',
-                            maxWidth: '80%',
-                            marginLeft: isMyMessage ? 'auto' : '0'
-                        }}
-                    >
-                        <div>
-                            <p style={{ margin: '0 0 5px 0' }}>{message.content}</p>
-                            <small style={{ color: '#666' }}>
-                                {new Date(message.createdAt).toLocaleString()}
-                            </small>
-                        </div>
-                    </li>
-                );
-            })}
-            <div ref={messagesEndRef} />
-        </ul>
-        <input
-            type="text"
-            value={messageText}
-            onChange={(e) => setMessageText(e.target.value)}
-            placeholder="Type a message..."
-            style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid #ccc',
-                borderRadius: '5px',
-                marginTop: '10px',
-                boxSizing: 'border-box'
-            }}
-        />
-        <button
-            style={{
-                padding: '10px 20px',
-                backgroundColor: '#0070f3',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                marginTop: '10px',
-                width: '100%'
-            }}
-            onClick={handleSendMessage}
-        >
-            Send
-        </button>
-        </>
-    );
+            disabled={isLoading}
+          />
+          <button
+            type="submit"
+            disabled={isLoading || !messageText.trim()}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 
+                     disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
+          >
+            {isLoading ? 'Sending...' : 'Send'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 }

@@ -10,14 +10,20 @@
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
+    "@types/ws": "^8.18.1",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.6.1",
     "cookie": "^1.0.2",
     "formidable": "^3.5.4",
     "next": "15.2.4",
     "nookies": "^2.5.2",
+    "pusher": "^5.2.0",
+    "pusher-js": "^8.4.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "ws": "^8.18.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
