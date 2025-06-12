@@ -8,8 +8,6 @@ export async function GET(request: Request) {
     const senderId = searchParams.get('senderId');
     const receiverId = searchParams.get('receiverId');
 
-    console.log('Fetching messages for:', { senderId, receiverId });
-
     if (!senderId || !receiverId) {
       return NextResponse.json(
         { error: 'Missing required parameters' },
@@ -29,10 +27,9 @@ export async function GET(request: Request) {
       }
     });
 
-    console.log('Found messages:', messages.length);
     return NextResponse.json(messages);
   } catch (error) {
-    console.error('Error details:', error);
+    console.error('Error fetching messages:', error);
     return NextResponse.json(
       { error: 'Failed to fetch messages' },
       { status: 500 }
