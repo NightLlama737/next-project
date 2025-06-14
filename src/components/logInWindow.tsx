@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { parseCookies, setCookie } from 'nookies';
+import { setCookie } from 'nookies';
 
 export default function LogInWindow() {
 

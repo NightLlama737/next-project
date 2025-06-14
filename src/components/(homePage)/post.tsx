@@ -22,19 +22,29 @@ interface PostData {
     } | null;  // Make user optional
 }
 
+interface PostApiResponse {
+    id: number;
+    title: string;
+    content: string;
+    mediaUrl?: string;
+    createdAt?: string;
+    user?: {
+        name: string;
+        groupName: string;
+    };
+}
+
 export default function Post({ params }: { params: { postId: string } }) {
     const [post, setPost] = useState<PostData | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [isImageOpen, setIsImageOpen] = useState(false);
 
-    
-
-    // Add data transformation after fetching
-    const transformPostData = (data: any): PostData => {
+    // Updated transformation function with proper typing
+    const transformPostData = (data: PostApiResponse): PostData => {
         return {
             ...data,
-            user: data.user || { name: 'Unknown', groupName: 'Unknown' }, // Provide default values
+            user: data.user || { name: 'Unknown', groupName: 'Unknown' },
             createdAt: data.createdAt || new Date().toISOString()
         };
     };
