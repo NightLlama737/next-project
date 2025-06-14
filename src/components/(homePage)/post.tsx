@@ -23,23 +23,12 @@ interface PostData {
 }
 
 export default function Post({ params }: { params: { postId: string } }) {
-    const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
     const [post, setPost] = useState<PostData | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [isImageOpen, setIsImageOpen] = useState(false);
 
-    const handleImageLoad = (image: HTMLImageElement) => {
-        if (image) {
-            const aspectRatio = image.naturalWidth / image.naturalHeight;
-            const maxHeight = 100; // Maximum container height
-            const width = Math.min(800, aspectRatio * maxHeight); // Container width is 800px
-            setImageSize({
-                width: width,
-                height: Math.min(maxHeight, width / aspectRatio)
-            });
-        }
-    };
+    
 
     // Add data transformation after fetching
     const transformPostData = (data: any): PostData => {
@@ -53,7 +42,6 @@ export default function Post({ params }: { params: { postId: string } }) {
     useEffect(() => {
         const fetchPost = async () => {
             try {
-                // Get current user from cookie
                 const cookies = parseCookies();
                 const currentUser = cookies.user 
                     ? JSON.parse(decodeURIComponent(cookies.user)) as UserCookie 
