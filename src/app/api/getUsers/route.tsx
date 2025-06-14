@@ -1,23 +1,36 @@
-import { prisma } from "../../../../prisma";
+import { NextResponse } from 'next/server';
+import { prisma } from '../../../../prisma';
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        const users = await prisma.user.findMany();
-        if (!users || users.length === 0) {
-            return new Response(JSON.stringify({ error: "No users found" }), {
-                status: 404,
-                headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "GET, OPTIONS"
-                },
-            });
-        }
-        return new Response(JSON.stringify(users), { status: 200 });
+        const { searchParams } = new URL(request.url);
+        const groupName = searchParams.get('groupName');
 
+        if (!groupName) {
+            return NextResponse.json(
+                { error: 'Group name is required' },
+                { status: 400 }
+            );
+        }
+
+        const users = await prisma.user.findMany({
+            where: {
+                groupName: groupName
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                groupName: true
+            }
+        });
+
+        return NextResponse.json(users);
     } catch (error) {
-        console.error("Error fetching users:", error);
-        return new Response("Failed to fetch users", { status: 500 });
+        console.error('Error fetching users:', error);
+        return NextResponse.json(
+            { error: 'Failed to fetch users' },
+            { status: 500 }
+        );
     }
-    
 }

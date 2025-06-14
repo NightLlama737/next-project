@@ -12,7 +12,7 @@ export default function Layout({
                 borderRadius: "10px",
                 backgroundColor: "#f0f0f0",
                 flexDirection: "column",
-                justifyContent: "center",
+                justifyContent: "space-between",
                 alignItems: "center",
                 marginLeft: "auto",
                 marginRight: "auto",

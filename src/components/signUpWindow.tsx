@@ -1,6 +1,8 @@
 "use client"
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { setCookie } from 'nookies';
+
 export default function SignUpWindow() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -32,8 +34,19 @@ export default function SignUpWindow() {
             }
 
             const data = await response.json();
+            
+            setCookie(null, 'user', encodeURIComponent(JSON.stringify(data)), {
+                maxAge: 30 * 24 * 60 * 60,
+                path: '/',
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict'
+            });
+
             console.log("User added:", data);
-            router.push("/homePage"); 
+            // Změna: Nejdřív přesměrujeme a pak refreshneme
+            await router.push("/homePage");
+            router.refresh();
+            
         } catch (error) {
             console.error("Error:", error);
             const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -58,6 +71,7 @@ export default function SignUpWindow() {
             <h2 style={{fontSize: "50px"}}>Sign Up</h2>
             <form onSubmit={(e) => e.preventDefault()} style={{
                 display: "flex",
+                marginBottom: "100px",
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",

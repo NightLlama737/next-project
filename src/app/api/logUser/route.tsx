@@ -55,17 +55,19 @@ export async function POST(request: Request) {
             headers: { "Content-Type": "application/json" },
         });
 
-        // Set the cookie in the response headers
-        const cookieValue = JSON.stringify({
+        const cookieData = {
             id: user.id,
             name: user.name,
             email: user.email,
             groupName: user.groupName,
             workerId: user.workerId,
-        });
+        };
+
+        // Encode the cookie value to handle special characters
+        const encodedCookie = encodeURIComponent(JSON.stringify(cookieData));
 
         response.headers.set('Set-Cookie', 
-            `user=${cookieValue}; Path=/; Secure; SameSite=Strict; Max-Age=${30 * 24 * 60 * 60}`
+            `user=${encodedCookie}; Path=/; Secure; SameSite=Strict; Max-Age=${30 * 24 * 60 * 60}`
         );
 
         return response;

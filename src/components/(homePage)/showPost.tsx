@@ -2,7 +2,14 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { parseCookies } from 'nookies';
 
+
+interface UserCookie {
+    id: number;
+    groupName: string;
+    // ...other user properties
+}
 
 export default function ShowPost() {
     const router = useRouter();
@@ -10,12 +17,18 @@ export default function ShowPost() {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const response = await fetch('/api/getPost', {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                    },
-                });
+                // Get current user from cookie
+                const cookies = parseCookies();
+                const currentUser = cookies.user 
+                    ? JSON.parse(decodeURIComponent(cookies.user)) as UserCookie 
+                    : null;
+
+                if (!currentUser?.groupName) {
+                    throw new Error('No group found for current user');
+                }
+
+                // Fetch posts with group filter
+                const response = await fetch(`/api/getPost?groupName=${encodeURIComponent(currentUser.groupName)}`);
 
                 if (!response.ok) {
                     throw new Error('Failed to fetch posts');
@@ -24,12 +37,10 @@ export default function ShowPost() {
                 const posts = await response.json();
                 
                 if (posts && posts.length > 0) {
-                    // Get the first post's title and encode it for URL
                     const firstPostTitle = encodeURIComponent(posts[0].id);
-                    // Navigate to the post
                     router.push(`/homePage/home/${firstPostTitle}`);
                 } else {
-                    console.log('No posts found');
+                    console.log('No posts found for your group');
                 }
             } catch (error) {
                 console.error('Error fetching posts:', error);

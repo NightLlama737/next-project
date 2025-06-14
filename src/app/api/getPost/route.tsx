@@ -8,17 +8,37 @@ cloudinary.config({
     api_secret: process.env.SECRET_KEY
 });
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        // Get posts from database
+        const { searchParams } = new URL(request.url);
+        const groupName = searchParams.get('groupName');
+        const postId = searchParams.get('postId');
+
+        if (!groupName) {
+            return new Response(JSON.stringify({ error: "Group name is required" }), {
+                status: 400,
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+
+        const whereClause = {
+            user: {
+                groupName: groupName
+            },
+            ...(postId ? { id: parseInt(postId) } : {})
+        };
+
+        // Get posts from database with group filter
         const posts = await prisma.posts.findMany({
+            where: whereClause,
             orderBy: {
                 createdAt: 'desc'
             },
             include: {
                 user: {
                     select: {
-                        name: true
+                        name: true,
+                        groupName: true
                     }
                 }
             }
@@ -89,13 +109,10 @@ export async function GET() {
         });
 
     } catch (error) {
-        console.error("Error fetching posts:", error);
-        return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+        console.error('Error:', error);
+        return new Response(JSON.stringify({ error: "Failed to fetch posts" }), {
             status: 500,
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*"
-            },
+            headers: { "Content-Type": "application/json" }
         });
     } finally {
         await prisma.$disconnect();

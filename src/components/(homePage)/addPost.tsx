@@ -4,6 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { parseCookies } from "nookies";
 
+interface UserCookie {
+    id: number;
+    groupName: string;
+    // Add other properties as needed
+}
+
 export default function AddPost() {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
@@ -19,7 +25,9 @@ export default function AddPost() {
 
         try {
             const cookies = parseCookies();
-            const currentUser = cookies.user ? JSON.parse(cookies.user) : null;
+            const currentUser = cookies.user 
+                ? JSON.parse(decodeURIComponent(cookies.user)) as UserCookie 
+                : null;
             
             if (!currentUser) {
                 setError("Please log in.");
@@ -30,6 +38,7 @@ export default function AddPost() {
             formData.append("title", title);
             formData.append("content", content);
             formData.append("userId", currentUser.id.toString());
+            formData.append("groupName", currentUser.groupName); // Add groupName to formData
             
             if (file) {
                 formData.append("media", file);

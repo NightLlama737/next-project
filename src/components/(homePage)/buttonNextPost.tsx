@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { parseCookies } from 'nookies';
+
 
 interface Post {
     id: number;
@@ -10,6 +12,12 @@ interface Post {
     createdAt: string;
     authorId: number;
     mediaUrl?: string;
+}
+
+interface UserCookie {
+    id: number;
+    groupName: string;
+    // ...other user properties
 }
 
 interface ButtonNextPostProps {
@@ -23,15 +31,19 @@ export default function ButtonNextPost({ currentPostTitle }: ButtonNextPostProps
     const handleNextPost = async () => {
         setLoading(true);
         try {
-            const response = await fetch('/api/getPost', {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                },
-            });
+            const cookies = parseCookies();
+            const currentUser = cookies.user ? JSON.parse(decodeURIComponent(cookies.user)) as UserCookie : null;
+            
+            if (!currentUser?.groupName) {
+                throw new Error('No group found for current user');
+            }
 
+            // Fixed URL query parameter syntax - changed & to ?
+            const response = await fetch(`/api/getPost?groupName=${encodeURIComponent(currentUser.groupName)}`);
+            
             if (!response.ok) {
-                throw new Error('Failed to fetch posts');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to fetch posts');
             }
 
             const posts = await response.json();

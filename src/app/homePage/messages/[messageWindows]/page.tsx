@@ -13,7 +13,9 @@ export default async function MessageWindow({ params }: PageProps) {
     
     const cookieStore = await cookies();
     const userCookie = cookieStore.get('user');
-    const currentUser = userCookie ? JSON.parse(userCookie.value) : null;
+    const currentUser = userCookie 
+        ? JSON.parse(decodeURIComponent(userCookie.value)) 
+        : null;
 
     if (!currentUser) {
         return <div>Please log in to view messages</div>;

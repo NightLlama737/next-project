@@ -27,21 +27,28 @@
 .messageWrapper {
   display: flex;
   width: 100%;
+  min-height: fit-content; /* Změna z pevné výšky na fit-content */
+  margin-bottom: 1rem; /* Přidáno pro lepší mezery mezi zprávami */
 }
 
 .senderMessage {
   justify-content: flex-end;
+  height: auto; /* Změna z pevné výšky na auto */
 }
 
 .receiverMessage {
   justify-content: flex-start;
+  height: auto; /* Změna z pevné výšky na auto */
 }
 
 .messageBubble {
+  display: flex;
+  flex-direction: column;
   max-width: 70%;
-  padding: 0.75rem;
+  padding: 8px 12px; /* Upravené padding pro lepší vzhled */
   border-radius: 0.5rem;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  height: fit-content; /* Nastavení výšky podle obsahu */
 }
 
 .senderMessage .messageBubble {
@@ -58,12 +65,14 @@
 
 .messageContent {
   word-break: break-word;
+  margin: 0; /* Reset margin */
+  padding: 0; /* Reset padding */
 }
 
 .messageTime {
   display: block;
   font-size: 0.75rem;
-  margin-top: 0.25rem;
+  margin: 10px;
   opacity: 0.75;
 }
 

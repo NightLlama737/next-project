@@ -9,7 +9,8 @@ datasource db {
 
 model User {
   id               Int        @id @default(autoincrement())
-  name             String?
+  name             String?    @unique
+  isAdmin          Boolean    @default(false)
   email            String?    @unique
   password         String?
   workerId         Int        @unique
@@ -22,10 +23,11 @@ model User {
 }
 
 model Group {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  users     User[]
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  createdAt  DateTime @default(now())
+  maxWorkers Int
+  users      User[]
 }
 
 model Messages {

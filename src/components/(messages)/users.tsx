@@ -7,12 +7,13 @@ interface User {
   id: number;
   name: string;
   email: string;
+  groupName: string;  // Add groupName to User interface
 }
 
 interface UserCookie {
   name: string;
   id: number;
-  // Add other properties that are stored in the cookie
+  groupName: string;  // Add groupName to UserCookie interface
 }
 
 export default function Users() {
@@ -21,12 +22,21 @@ export default function Users() {
     const [error, setError] = useState<Error | null>(null);
     const router = useRouter();
     const cookies = parseCookies();
-    const currentUser = cookies.user ? JSON.parse(cookies.user) as UserCookie : null;
+    
+    // Decode the cookie before parsing
+    const currentUser = cookies.user 
+        ? JSON.parse(decodeURIComponent(cookies.user)) as UserCookie 
+        : null;
 
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await fetch("/api/getUsers");
+                if (!currentUser?.groupName) {
+                    throw new Error("No group found for current user");
+                }
+
+                const response = await fetch(`/api/getUsers?groupName=${encodeURIComponent(currentUser.groupName)}`);
+                
                 if (!response.ok) {
                     throw new Error("Network response was not ok");
                 }
@@ -41,7 +51,7 @@ export default function Users() {
         };
 
         fetchUsers();
-    }, []);
+    }, [currentUser?.groupName]); // Add groupName to dependency array
 
     const handleRoute = (userId: number) => {
         router.push(`/homePage/messages/${userId}`);

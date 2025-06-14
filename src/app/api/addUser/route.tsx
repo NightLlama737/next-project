@@ -41,29 +41,31 @@ export async function POST(request: Request) {
             data: {
                 name: body.name,
                 email: body.email,
-                password: hashedPassword, // Store hashed password
+                password: hashedPassword,
                 groupName: body.groupName,
                 workerId: parseInt(body.workerId),
             },
         });
 
-        const response = new Response(JSON.stringify(user), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-        });
-
-        // Set the cookie in the response headers
-        const cookieValue = JSON.stringify({
+        // Create cookie data and encode it
+        const cookieData = {
             id: user.id,
             name: user.name,
             email: user.email,
             groupName: user.groupName,
             workerId: user.workerId,
-        });
+        };
 
-        response.headers.set('Set-Cookie', 
-            `user=${cookieValue}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${30 * 24 * 60 * 60}`
-        );
+        // Encode the cookie value to handle special characters
+        const encodedCookie = encodeURIComponent(JSON.stringify(cookieData));
+
+        const response = new Response(JSON.stringify(user), {
+            status: 200,
+            headers: { 
+                "Content-Type": "application/json",
+                'Set-Cookie': `user=${encodedCookie}; Path=/; Secure; SameSite=Strict; Max-Age=${30 * 24 * 60 * 60}`
+            },
+        });
 
         return response;
        

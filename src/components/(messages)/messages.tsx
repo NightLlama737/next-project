@@ -126,6 +126,11 @@ export default function Messages({ SenderUserId, ReceiverUserId }: MessagesProps
         
         {messages.map((message) => {
           const isSender = message.senderId === Number(SenderUserId.Id);
+          const messageTime = new Date(message.createdAt);
+          const formattedTime = messageTime.toLocaleTimeString('cs-CZ', {
+            hour: '2-digit',
+            minute: '2-digit',
+          });
           
           return (
             <div
@@ -136,10 +141,11 @@ export default function Messages({ SenderUserId, ReceiverUserId }: MessagesProps
             >
               <div className={styles.messageBubble}>
                 <p className={styles.messageContent}>{message.content}</p>
-                <span className={styles.messageTime}>
-                  {new Date(message.createdAt).toLocaleTimeString()}
-                </span>
+                
               </div>
+              <span className={styles.messageTime}>
+                  {formattedTime}
+                </span>
             </div>
           );
         })}

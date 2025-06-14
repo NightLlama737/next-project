@@ -1,5 +1,6 @@
 import LogIn from "../../components/signUpButton";
 import SignUp from "../../components/logInButton";
+import NewWorkplaceButton from "../../components/newWorkplaceButton";
 export default function RootLayout({
     children,
 }: {
@@ -32,6 +33,7 @@ export default function RootLayout({
                         marginRight: "auto",
                     }}
                     >WORKER</h1>
+                    <NewWorkplaceButton />
             </header>
             {children}
             <footer

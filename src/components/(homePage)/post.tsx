@@ -1,33 +1,38 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from 'react';
+import { parseCookies } from 'nookies';
 import Image from 'next/image';
 import ButtonNextPost from './buttonNextPost';
 
-interface Post {
+interface UserCookie {
+    id: number;
+    groupName: string;
+}
+
+interface PostData {
     id: number;
     title: string;
     content: string;
+    mediaUrl?: string;
     createdAt: string;
-    authorId: number;
-    mediaUrl?: string;  // Add this line for media support
+    user: {
+        name: string;
+        groupName: string;
+    } | null;  // Make user optional
 }
 
-interface PostProps {
-    post: string;
-}
-
-export default function Post({ post }: PostProps) {
+export default function Post({ params }: { params: { postId: string } }) {
     const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
-    const [postData, setPostData] = useState<Post | null>(null);
-    const [error, setError] = useState<Error | null>(null);
+    const [post, setPost] = useState<PostData | null>(null);
+    const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [isImageOpen, setIsImageOpen] = useState(false);
 
     const handleImageLoad = (image: HTMLImageElement) => {
         if (image) {
             const aspectRatio = image.naturalWidth / image.naturalHeight;
-            const maxHeight = 400; // Maximum container height
+            const maxHeight = 100; // Maximum container height
             const width = Math.min(800, aspectRatio * maxHeight); // Container width is 800px
             setImageSize({
                 width: width,
@@ -36,19 +41,31 @@ export default function Post({ post }: PostProps) {
         }
     };
 
+    // Add data transformation after fetching
+    const transformPostData = (data: any): PostData => {
+        return {
+            ...data,
+            user: data.user || { name: 'Unknown', groupName: 'Unknown' }, // Provide default values
+            createdAt: data.createdAt || new Date().toISOString()
+        };
+    };
+
     useEffect(() => {
         const fetchPost = async () => {
             try {
-                // Decode the URL-encoded post title
-                const decodeId = decodeURIComponent(post);
-                console.log('Fetching post with decoded title:', decodeId);
+                // Get current user from cookie
+                const cookies = parseCookies();
+                const currentUser = cookies.user 
+                    ? JSON.parse(decodeURIComponent(cookies.user)) as UserCookie 
+                    : null;
 
-                const response = await fetch('/api/getPost', {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                    },
-                });
+                if (!currentUser?.groupName) {
+                    throw new Error('No group found for current user');
+                }
+
+                const response = await fetch(
+                    `/api/getPost?groupName=${encodeURIComponent(currentUser.groupName)}&postId=${params.postId}`
+                );
 
                 if (!response.ok) {
                     const errorData = await response.json();
@@ -56,30 +73,20 @@ export default function Post({ post }: PostProps) {
                 }
 
                 const data = await response.json();
-                console.log('Received data:', data);
-
-                // Use the decoded title for comparison
-                const foundPost = data.find((p: Post) => p.id === parseInt(decodeId));
-                if (!foundPost) {
-                    throw new Error("Post not found");
-                }
-
-                setPostData(foundPost);
+                // Transform the data before setting it
+                setPost(transformPostData(data[0])); // Access first item since API returns array
             } catch (error) {
-                console.error("Error fetching post:", error);
-                setError(error instanceof Error ? error : new Error("Failed to fetch post"));
+                console.error('Error fetching post:', error);
+                setError(error instanceof Error ? error.message : 'Failed to fetch post');
             } finally {
                 setLoading(false);
             }
         };
 
-        if (post) {
+        if (params.postId) {
             fetchPost();
-        } else {
-            setError(new Error("No post title provided"));
-            setLoading(false);
         }
-    }, [post]);
+    }, [params.postId]);
 
     const handleImageClick = () => {
         setIsImageOpen(true);
@@ -90,12 +97,22 @@ export default function Post({ post }: PostProps) {
     };
 
     if (loading) return <div>Loading post...</div>;
-    if (error) return <div>Error: {error.message}</div>;
-    if (!postData) return <div>No post found</div>;
+    if (error) return <div>Error: {error}</div>;
+    if (!post) return <div>No post found</div>;
 
     return (
-        <>
-            {isImageOpen && postData.mediaUrl && (
+        <div style={{
+            width: '100%',
+            height: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            padding: '20px',
+            boxSizing: 'border-box',
+            backgroundColor: '#f5f5f5'
+        }}>
+            {/* Modal for enlarged image */}
+            {isImageOpen && post?.mediaUrl && (
                 <div style={{
                     position: 'fixed',
                     top: 0,
@@ -104,13 +121,12 @@ export default function Post({ post }: PostProps) {
                     bottom: 0,
                     backgroundColor: 'rgba(0, 0, 0, 0.9)',
                     display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
                     justifyContent: 'center',
+                    alignItems: 'center',
                     zIndex: 1000,
-                    padding: '20px'
+                    cursor: 'pointer'
                 }}>
-                    <button
+                    <button 
                         onClick={handleCloseImage}
                         style={{
                             position: 'absolute',
@@ -122,20 +138,21 @@ export default function Post({ post }: PostProps) {
                             width: '40px',
                             height: '40px',
                             cursor: 'pointer',
+                            fontSize: '20px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontSize: '20px'
+                            zIndex: 1001
                         }}
                     >
                         ✕
                     </button>
                     <Image
-                        src={postData.mediaUrl}
-                        alt={postData.title}
-                        width={imageSize.width * 2} // Larger size for modal
-                        height={imageSize.height * 2}
-                        style={{ 
+                        src={post.mediaUrl}
+                        alt={post.title}
+                        width={1200}
+                        height={800}
+                        style={{
                             maxWidth: '90vw',
                             maxHeight: '90vh',
                             objectFit: 'contain'
@@ -149,21 +166,32 @@ export default function Post({ post }: PostProps) {
                 display: 'flex',
                 flexDirection: 'column',
                 padding: '20px',
-                width: '800px', // Fixed width
-                margin: '20px auto', // Center the article
+                width: '100%',
+                maxWidth: '800px',
+                height: 'auto',
+                minHeight: '200px',
+                maxHeight: 'calc(100vh - 40px)', // Subtract padding
+                margin: '0 auto',
                 borderRadius: '8px',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                backgroundColor: '#fff'
+                backgroundColor: '#fff',
+                overflow: 'auto', // Enable scrolling if content is too long
+                position: 'relative' // For positioning the ButtonNextPost
             }}>
-                <h1 style={{ margin: '0 0 16px 0' }}>{postData.title}</h1>
+                <h1 style={{ 
+                    margin: '0 0 16px 0',
+                    fontSize: '1.5rem',
+                    wordBreak: 'break-word'
+                }}>{post.title}</h1>
                 
-                {postData.mediaUrl && (
+                {post.mediaUrl && (
                     <div 
                         onClick={handleImageClick}
                         style={{ 
                             position: 'relative',
                             width: '100%',
-                            height: imageSize.height || 400, // Use calculated height or default
+                            height: 'auto',
+                            maxHeight: '40vh',
                             marginBottom: '20px',
                             borderRadius: '4px',
                             overflow: 'hidden',
@@ -171,42 +199,55 @@ export default function Post({ post }: PostProps) {
                         }}
                     >
                         <Image
-                            src={postData.mediaUrl}
-                            alt={postData.title}
-                            width={imageSize.width || 800}
-                            height={imageSize.height || 400}
+                            src={post.mediaUrl}
+                            alt={post.title}
+                            width={800}
+                            height={400}
                             style={{ 
                                 objectFit: 'contain',
                                 width: '100%',
-                                height: '100%'
+                                height: 'auto'
                             }}
-                            onLoadingComplete={handleImageLoad}
                             priority
                         />
                     </div>
                 )}
                 
-                <p style={{ lineHeight: '1.6' }}>{postData.content}</p>
-                <footer style={{ 
-                    marginTop: '20px',
-                    color: '#666',
-                    fontSize: '0.9rem'
+                <div style={{
+                    flex: '1 1 auto',
+                    overflowY: 'auto',
+                    padding: '10px 0'
                 }}>
-                    <p>Author ID: {postData.authorId}</p>
-                    <time>Posted: {new Date(postData.createdAt).toLocaleString()}</time>
-                </footer>
+                    <p style={{ 
+                        lineHeight: '1.6',
+                        wordBreak: 'break-word',
+                        margin: '0 0 20px 0'
+                    }}>{post.content}</p>
+                    
+                    <footer style={{ 
+                        color: '#666',
+                        fontSize: '0.9rem',
+                        borderTop: '1px solid #eee',
+                        paddingTop: '10px'
+                    }}>
+                        <p style={{ margin: '5px 0' }}>Author: {post.user?.name || 'Unknown'}</p>
+                        <p style={{ margin: '5px 0' }}>Group: {post.user?.groupName || 'Unknown'}</p>
+                        <time style={{ display: 'block', margin: '5px 0' }}>
+                            Posted: {new Date(post.createdAt).toLocaleString('cs-CZ')}
+                        </time>
+                    </footer>
+                </div>
             </article>
 
-            {/* Move ButtonNextPost outside the article */}
             <div style={{
                 position: 'fixed',
                 bottom: '20px',
                 right: '20px',
                 zIndex: 999
             }}>
-                <ButtonNextPost currentPostTitle={post} />
+                <ButtonNextPost currentPostTitle={params.postId} />
             </div>
-        </>
+        </div>
     );
 }
 

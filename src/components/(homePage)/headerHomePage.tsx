@@ -1,8 +1,7 @@
 "use client";
 
-import { destroyCookie } from 'nookies';
+import { destroyCookie, parseCookies } from 'nookies';
 import { useRouter } from "next/navigation";
-import { parseCookies } from "nookies";
 import { useEffect, useState } from "react";
 
 interface User {
@@ -17,20 +16,40 @@ export default function HeaderHomePage() {
     const [user, setUser] = useState<User | null>(null);
     const router = useRouter();
 
-    useEffect(() => {
-        const cookies = parseCookies();
-        console.log('All cookies:', cookies.user); // Debug all cookies
+    // Move loadUser outside so it can be used in both useEffects
+    const loadUser = () => {
+        try {
+            const cookies = parseCookies();
+            console.log('All cookies:', cookies);
 
-        
             if (cookies.user) {
-                const parsedUser = JSON.parse(cookies.user);
-                console.log('Parsed user:', parsedUser); // Debug parsed user
+                const decodedCookie = decodeURIComponent(cookies.user);
+                const parsedUser = JSON.parse(decodedCookie);
+                console.log('Parsed user:', parsedUser);
                 setUser(parsedUser);
             } else {
-                console.log('No user cookie found'); // Debug missing cookie
+                console.log('No user cookie found');
+                router.push('/logIn');
             }
-       
+        } catch (error) {
+            console.error('Error parsing user cookie:', error);
+            destroyCookie(null, 'user', { path: '/' });
+            router.push('/logIn');
+        }
+    };
+
+    useEffect(() => {
+        loadUser();
     }, [router]);
+
+    useEffect(() => {
+        const handleStorageChange = () => {
+            loadUser();
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     const logOut = () => {
         try {
