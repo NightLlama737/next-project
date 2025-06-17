@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
@@ -16,7 +16,6 @@ interface WorkplaceData {
 export default function Payment() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const router = useRouter();
     const searchParams = useSearchParams();
 
     const encodedData = searchParams.get('data');
@@ -48,7 +47,7 @@ export default function Payment() {
             if (error) {
                 setError(error.message ?? 'An unknown error occurred.');
             }
-        } catch (err) {
+        } catch {
             setError('Payment failed. Please try again.');
         } finally {
             setLoading(false);

@@ -1,15 +1,8 @@
 "use client"
 import { destroyCookie } from 'nookies';
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
-interface User {
-    id: number;
-    email: string;
-    name: string;
-    groupId: number;
-    workerId: number;
-}
+
 
 export default function LogOut() {
     const router = useRouter();
