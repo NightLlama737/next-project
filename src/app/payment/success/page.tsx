@@ -29,7 +29,6 @@ export default function Success() {
                     throw new Error('Failed to create workplace');
                 }
 
-                const data = await response.json();
                 setStatus('success');
                 
                 // Wait a bit before redirecting

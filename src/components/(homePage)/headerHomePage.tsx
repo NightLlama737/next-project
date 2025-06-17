@@ -51,17 +51,7 @@ export default function HeaderHomePage() {
         return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
 
-    const logOut = () => {
-        try {
-            destroyCookie(null, "user", {
-                path: '/', // Important: must match the path used when setting the cookie
-            });
-            setUser(null);
-            router.push("/");
-        } catch (error) {
-            console.error('Error during logout:', error);
-        }
-    };
+    
 
     return ( 
         <header
