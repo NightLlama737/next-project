@@ -16,7 +16,7 @@ export default function AddButton() {
             border: "none",
             borderRadius: "5px",
         }}>
-            add
+            Add
         </button>
     )
 }

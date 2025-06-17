@@ -85,14 +85,7 @@ export default function HeaderHomePage() {
                         marginRight: "auto",
                     }}
                     >WORKER</h1>
-                    <button
-                        style = {{padding: "10px",
-                            width: "100px",
-                            marginRight: "2%",
-                            backgroundColor: "#0070f3",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "5px",} } onClick={logOut}>Odhlásit</button>
+                    
             </header>
     )
 }

@@ -1,5 +1,5 @@
 "use client"
-
+import CommentWindow from './commentWindow';
 import { useEffect, useState } from 'react';
 import { parseCookies } from 'nookies';
 import Image from 'next/image';
@@ -99,18 +99,8 @@ export default function Post({ params }: { params: { postId: string } }) {
     if (!post) return <div>No post found</div>;
 
     return (
-        <div style={{
-            width: '100%',
-            height: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            padding: '20px',
-            boxSizing: 'border-box',
-            backgroundColor: '#f5f5f5'
-        }}>
-            {/* Modal for enlarged image */}
-            {isImageOpen && post?.mediaUrl && (
+        <>
+        {isImageOpen && post?.mediaUrl && (
                 <div style={{
                     position: 'fixed',
                     top: 0,
@@ -160,84 +150,110 @@ export default function Post({ params }: { params: { postId: string } }) {
                 </div>
             )}
 
-            <article style={{
-                display: 'flex',
-                flexDirection: 'column',
-                padding: '20px',
-                width: '100%',
-                maxWidth: '800px',
-                height: 'auto',
-                minHeight: '200px',
-                maxHeight: 'calc(100vh - 40px)', // Subtract padding
-                margin: '0 auto',
-                borderRadius: '8px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                backgroundColor: '#fff',
-                overflow: 'auto', // Enable scrolling if content is too long
-                position: 'relative' // For positioning the ButtonNextPost
-            }}>
-                <h1 style={{ 
-                    margin: '0 0 16px 0',
-                    fontSize: '1.5rem',
-                    wordBreak: 'break-word'
-                }}>{post.title}</h1>
-                
-                {post.mediaUrl && (
-                    <div 
-                        onClick={handleImageClick}
-                        style={{ 
-                            position: 'relative',
-                            width: '100%',
-                            height: 'auto',
-                            maxHeight: '40vh',
-                            marginBottom: '20px',
-                            borderRadius: '4px',
-                            overflow: 'hidden',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        <Image
-                            src={post.mediaUrl}
-                            alt={post.title}
-                            width={800}
-                            height={400}
-                            style={{ 
-                                objectFit: 'contain',
-                                width: '100%',
-                                height: 'auto'
-                            }}
-                            priority
-                        />
-                    </div>
-                )}
-                
-                <div style={{
-                    flex: '1 1 auto',
-                    overflowY: 'auto',
-                    padding: '10px 0'
-                }}>
-                    <p style={{ 
-                        lineHeight: '1.6',
-                        wordBreak: 'break-word',
-                        margin: '0 0 20px 0'
-                    }}>{post.content}</p>
-                    
-                    <footer style={{ 
-                        color: '#666',
-                        fontSize: '0.9rem',
-                        borderTop: '1px solid #eee',
-                        paddingTop: '10px'
-                    }}>
-                        <p style={{ margin: '5px 0' }}>Author: {post.user?.name || 'Unknown'}</p>
-                        <p style={{ margin: '5px 0' }}>Group: {post.user?.groupName || 'Unknown'}</p>
-                        <time style={{ display: 'block', margin: '5px 0' }}>
-                            Posted: {new Date(post.createdAt).toLocaleString('cs-CZ')}
-                        </time>
-                    </footer>
-                </div>
-            </article>
-
             <div style={{
+                display: 'flex',
+                width: '100%',
+                maxWidth: '1400px',
+                gap: '20px',
+                height: 'calc(100vh - 40px)',
+                margin: '0 auto',
+                padding: '20px',
+                boxSizing: 'border-box'
+            }}>
+                <article style={{
+                    flex: '2',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '20px',
+                    height: '95%',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                    backgroundColor: '#fff',
+                    overflow: 'hidden' // Changed from auto to hidden
+                }}>
+                    <h1 style={{ 
+                        margin: '0 0 16px 0',
+                        fontSize: '1.5rem',
+                        wordBreak: 'break-word'
+                    }}>{post.title}</h1>
+                    
+                    <div style={{
+                        flex: '1',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '20px',
+                        overflow: 'auto', // Add scroll here
+                        padding: '0 5px' // Add some padding for scrollbar
+                    }}>
+                        {post.mediaUrl && (
+                            <div 
+                                onClick={handleImageClick}
+                                style={{ 
+                                    position: 'relative',
+                                    width: '100%',
+                                    minHeight: '200px', // Add minimum height
+                                    maxHeight: '40vh',
+                                    borderRadius: '4px',
+                                    overflow: 'hidden',
+                                    cursor: 'pointer',
+                                    backgroundColor: '#f5f5f5' // Add background for loading state
+                                }}
+                            >
+                                <Image
+                                    src={post.mediaUrl}
+                                    alt={post.title}
+                                    width={800}
+                                    height={400}
+                                    style={{ 
+                                        objectFit: 'contain',
+                                        width: '100%',
+                                        height: '100%'
+                                    }}
+                                    priority
+                                />
+                            </div>
+                        )}
+                        
+                        <div style={{
+                            flex: '1 1 auto',
+                            overflowY: 'auto',
+                            padding: '10px 0'
+                        }}>
+                            <p style={{ 
+                                lineHeight: '1.6',
+                                wordBreak: 'break-word',
+                                margin: '0 0 20px 0'
+                            }}>{post.content}</p>
+                            
+                            <footer style={{ 
+                                color: '#666',
+                                fontSize: '0.9rem',
+                                borderTop: '1px solid #eee',
+                                paddingTop: '10px'
+                            }}>
+                                <p style={{ margin: '5px 0' }}>Author: {post.user?.name || 'Unknown'}</p>
+                                <p style={{ margin: '5px 0' }}>Group: {post.user?.groupName || 'Unknown'}</p>
+                                <time style={{ display: 'block', margin: '5px 0' }}>
+                                    Posted: {new Date(post.createdAt).toLocaleString('cs-CZ')}
+                                </time>
+                            </footer>
+                        </div>
+                    </div>
+                </article>
+
+                <div style={{
+                    flex: '1',
+                    minWidth: '300px',
+                    maxWidth: '400px',
+                    height: '100%',
+                    overflow: 'auto',
+                    backgroundColor: '#fff',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}>
+                    <CommentWindow postId={post.id} />
+                </div>
+                 <div style={{
                 position: 'fixed',
                 bottom: '20px',
                 right: '20px',
@@ -245,7 +261,8 @@ export default function Post({ params }: { params: { postId: string } }) {
             }}>
                 <ButtonNextPost currentPostTitle={params.postId} />
             </div>
-        </div>
+            </div>
+        </>
     );
 }
 

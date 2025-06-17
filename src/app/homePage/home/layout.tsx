@@ -12,7 +12,7 @@ export default function RootLayout({
             style={{
                 display: "flex",
                 boxShadow: "5px 5px 5px rgba(0, 0, 0, 0.1)",
-                marginTop: "50px",
+                marginTop: "20px",
                 borderRadius: "10px",
                 backgroundColor: "#f0f0f0",
                 flexDirection: "column",
@@ -20,9 +20,9 @@ export default function RootLayout({
                 alignItems: "center",
                 marginLeft: "auto",
                 marginRight: "auto",
-                height: "calc(70vh)",
+                height: "calc(78vh)",
                 width: "75%",
-                padding: "20px",
+                padding: "0px",
             }}
         >
             {children}

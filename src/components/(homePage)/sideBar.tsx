@@ -24,10 +24,10 @@ export default function SideBar() {
         <div style={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-around",
+            justifyContent: "space-between",
             alignItems: "center",
             boxShadow: "5px 5px 5px rgba(0, 0, 0, 0.1)",
-            maxHeight: "30vh",
+            maxHeight: "25vh",
             width: "px",
             backgroundColor: "#f0f0f0",
             borderRadius: "10px",
@@ -103,26 +103,7 @@ export default function SideBar() {
                     Account
                 </button>
             </li>
-            <li style={{
-                listStyleType: "none",
-                padding: "10px",
-                marginLeft: "10px",
-                fontSize: "20px",
-            }}>
-                <button 
-                    onClick={() => handleNavigation('/homePage/settings')}
-                    style={{
-                        padding: "10px",
-                        width: "100px",
-                        backgroundColor: "#0070f3",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "5px",
-                    }}
-                >
-                    Settings
-                </button>
-            </li>
+            
             <div style={{
                 
             display: "flex",

@@ -16,31 +16,16 @@ export default function NewWorkplaceWindow() {
             return;
         }
 
-        try {
-            const response = await fetch("/api/addWorkplace", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    name: name.trim(),
-                    maxWorkers: Number(maxWorkers)
-                })
-            });
+        // Instead of creating workplace, store data in URL and redirect to payment
+        const workplaceData = {
+            name: name.trim(),
+            maxWorkers: Number(maxWorkers),
+            amount: maxWorkers * 100 // $100 per worker
+        };
 
-            const data = await response.json();
-            
-            if (response.ok) {
-                alert("Workplace created successfully!");
-                router.push("/");
-                router.refresh();
-            } else {
-                alert("Error creating workplace: " + (data.error || "Unknown error"));
-            }
-        } catch (error) {
-            console.error("Failed to create workplace:", error);
-            alert("Failed to create workplace. Please try again.");
-        }
+        // Encode workplace data for URL
+        const encodedData = encodeURIComponent(JSON.stringify(workplaceData));
+        router.push(`/payment?data=${encodedData}`);
     };
 
     return (
@@ -106,7 +91,6 @@ export default function NewWorkplaceWindow() {
                 onClick={handleSubmit}
                 >Create Workplace</button>
         </form>
-        </>
-        
+        </>        
     )
 }

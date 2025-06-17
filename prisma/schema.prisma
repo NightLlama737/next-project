@@ -16,6 +16,7 @@ model User {
   workerId         Int        @unique
   createdAt        DateTime   @default(now())
   groupName        String?
+  coments          Comments[]
   receivedMessages Messages[] @relation("ReceivedMessages")
   sentMessages     Messages[] @relation("SentMessages")
   Posts            Posts[]
@@ -35,6 +36,7 @@ model Messages {
   senderId   Int
   receiverId Int
   content    String
+
   createdAt  DateTime @default(now())
   receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
   sender     User     @relation("SentMessages", fields: [senderId], references: [id])
@@ -46,6 +48,17 @@ model Posts {
   content   String
   mediaUrl  String?
   userId    Int
+  comments  Comments[]
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Comments {
+  id        Int      @id @default(autoincrement())
+  content   String
+  postId    Int
+  userId    Int
+  createdAt DateTime @default(now())
+  post      Posts    @relation(fields: [postId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
 }
